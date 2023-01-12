@@ -15,6 +15,8 @@ class TodoFactory extends Factory
     {
         return [
             //
+            'todo' => $this->faker->name(),
+            'status' => false,
         ];
     }
 }

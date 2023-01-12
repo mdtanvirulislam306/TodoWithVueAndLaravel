@@ -3,8 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
+use App\Models\TodoModel;
 class TodoSeeder extends Seeder
 {
     /**
@@ -15,9 +14,7 @@ class TodoSeeder extends Seeder
     public function run()
     {
         //Todo Sheed
-        DB::table ('todo')->insert ([
-            'todo' => Str::random(20),
-            'status' => false,
-        ]);
+        
+        TodoModel::factory()->count(5)->create();
     }
 }

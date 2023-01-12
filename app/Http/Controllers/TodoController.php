@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TodoModel;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -14,6 +15,8 @@ class TodoController extends Controller
     public function index()
     {
         //
+        $data = TodoModel::all();
+        return response()->json($data);
     }
 
     /**
@@ -24,6 +27,7 @@ class TodoController extends Controller
     public function create()
     {
         //
+        
     }
 
     /**
@@ -35,6 +39,13 @@ class TodoController extends Controller
     public function store(Request $request)
     {
         //
+        //dd($request->all());
+        // $model = new TodoModel;
+        // $model->todo = $request->todo;
+        // $model->status = $request->status;
+        // $data = $model->save();
+       // $data = TodoModel::create($request->all());
+        return response()->json($request->all());
     }
 
     /**
@@ -77,8 +88,18 @@ class TodoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    // public function destroy($id)
+    // {
+    //     //
+    //     $data = TodoModel::where('id',$id)->delete();
+    //     return response()->json($data);
+
+    // }
+    public function destroy(TodoModel $todo)
     {
         //
+        $todo->delete();
+        return response()->json('delete success');
+
     }
 }
