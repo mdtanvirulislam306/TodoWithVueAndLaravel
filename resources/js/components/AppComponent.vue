@@ -13,9 +13,10 @@
                                     class="form-control"
                                     v-model="todo"
                                 />
-                                <button class="btn btn-info" type="submit">
+                                <button class="btn btn-info" type="submit" v-if="!editTodoId" >
                                     Add
                                 </button>
+                                <button class="btn btn-info"  v-else  @click="updateTodo(editTodoIndex)">Update</button>
                             </div>
                         </form>
                         <table class="table table-bordered mt-2">
@@ -32,11 +33,12 @@
                                         <i
                                             class="fa-solid fa-check mx-2 text-primary"
                                         ></i>
-                                        <i
-                                            class="fa-solid fa-pen mx-2 text-info"
+                                        <i 
+                                        class="fa-solid fa-pen mx-2 text-info" 
+                                        @click="editTodo(index)"
                                         ></i>
                                         <i
-                                            @click="deleteTodo(index)"
+                                            @click="deleteTodo(item.id)"
                                             class="fa-solid fa-trash mx-2 text-danger"
                                         ></i>
                                     </td>
@@ -57,6 +59,8 @@ export default {
             todos: [],
             todo: "",
             api: "http://127.0.0.1:8000/api/todos",
+            editTodoId: '',
+            editTodoIndex: ''
         };
     },
     mounted() {
@@ -70,24 +74,46 @@ export default {
             });
         },
         addTodo() {
-            let data = {
+            let item = {
                 todo: this.todo,
                 status: 0,
             };
-            Vue.axios.post(this.api, data).then((response) => {
-                this.todos.push(response.data);
+            Vue.axios.post(this.api, item).then((response) => {
+                if(response){
+                    this.getTodo();
                 this.todo = "";
-                console.log(response.data);
+                console.log(this.todos);
+                }
+                
             });
         },
-        deleteTodo(index) {
-            console.log(this.todos[index].id);
-            Vue.axios
-                .delete(this.api + "/" + this.todos[index].id)
+        editTodo(index){
+            this.todo = this.todos[index].todo
+            this.editTodoId = this.todos[index].id
+            this.editTodoIndex = index
+             
+        },
+        updateTodo(index){
+            let item = {
+                todo: this.todo
+            };
+            Vue.axios.patch(this.api+"/"+this.todos[index].id, item).then((response) => {
+                if(response){
+                    console.log(response.data)
+                    this.todo = ""
+                    this.editTodoId = ""
+                    this.editTodoIndex = ""
+                }
+                
+            });
+        },
+        deleteTodo(id) {
+            //console.log(id);
+            Vue.axios.delete(this.api + "/" +id)
                 .then((response) => {
                     console.log(response.data);
                 });
-            this.todos = this.todos.filter((item) => item.index !== index);
+            this.todos = this.todos.filter((item) => item.id !== id);
         },
     },
 };

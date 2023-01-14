@@ -5365,13 +5365,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
       todos: [],
       todo: "",
-      api: "http://127.0.0.1:8000/api/todos"
+      api: "http://127.0.0.1:8000/api/todos",
+      editTodoId: '',
+      editTodoIndex: ''
     };
   },
   mounted: function mounted() {
@@ -5387,23 +5391,44 @@ __webpack_require__.r(__webpack_exports__);
     },
     addTodo: function addTodo() {
       var _this2 = this;
-      var data = {
+      var item = {
         todo: this.todo,
         status: 0
       };
-      Vue.axios.post(this.api, data).then(function (response) {
-        _this2.todos.push(response.data);
-        _this2.todo = "";
-        console.log(response.data);
+      Vue.axios.post(this.api, item).then(function (response) {
+        if (response) {
+          _this2.getTodo();
+          _this2.todo = "";
+          console.log(_this2.todos);
+        }
       });
     },
-    deleteTodo: function deleteTodo(index) {
-      console.log(this.todos[index].id);
-      Vue.axios["delete"](this.api + "/" + this.todos[index].id).then(function (response) {
+    editTodo: function editTodo(index) {
+      this.todo = this.todos[index].todo;
+      this.editTodoId = this.todos[index].id;
+      this.editTodoIndex = index;
+    },
+    updateTodo: function updateTodo(index) {
+      var _this3 = this;
+      var item = {
+        todo: this.todo
+      };
+      Vue.axios.patch(this.api + "/" + this.todos[index].id, item).then(function (response) {
+        if (response) {
+          console.log(response.data);
+          _this3.todo = "";
+          _this3.editTodoId = "";
+          _this3.editTodoIndex = "";
+        }
+      });
+    },
+    deleteTodo: function deleteTodo(id) {
+      //console.log(id);
+      Vue.axios["delete"](this.api + "/" + id).then(function (response) {
         console.log(response.data);
       });
       this.todos = this.todos.filter(function (item) {
-        return item.index !== index;
+        return item.id !== id;
       });
     }
   }
@@ -28723,15 +28748,31 @@ var render = function () {
                     },
                   }),
                   _vm._v(" "),
-                  _c(
-                    "button",
-                    { staticClass: "btn btn-info", attrs: { type: "submit" } },
-                    [
-                      _vm._v(
-                        "\n                                Add\n                            "
+                  !_vm.editTodoId
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-info",
+                          attrs: { type: "submit" },
+                        },
+                        [
+                          _vm._v(
+                            "\n                                Add\n                            "
+                          ),
+                        ]
+                      )
+                    : _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-info",
+                          on: {
+                            click: function ($event) {
+                              return _vm.updateTodo(_vm.editTodoIndex)
+                            },
+                          },
+                        },
+                        [_vm._v("Update")]
                       ),
-                    ]
-                  ),
                 ]),
               ]
             ),
@@ -28752,13 +28793,18 @@ var render = function () {
                       _vm._v(" "),
                       _c("i", {
                         staticClass: "fa-solid fa-pen mx-2 text-info",
+                        on: {
+                          click: function ($event) {
+                            return _vm.editTodo(index)
+                          },
+                        },
                       }),
                       _vm._v(" "),
                       _c("i", {
                         staticClass: "fa-solid fa-trash mx-2 text-danger",
                         on: {
                           click: function ($event) {
-                            return _vm.deleteTodo(index)
+                            return _vm.deleteTodo(item.id)
                           },
                         },
                       }),

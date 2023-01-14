@@ -38,14 +38,12 @@ class TodoController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        //dd($request->all());
-        // $model = new TodoModel;
-        // $model->todo = $request->todo;
-        // $model->status = $request->status;
-        // $data = $model->save();
-       // $data = TodoModel::create($request->all());
-        return response()->json($request->all());
+        
+        $model = new TodoModel;
+        $model->todo = $request->todo;
+        $model->status = $request->status;
+        $data = $model->save();
+        return response()->json($data);
     }
 
     /**
@@ -80,6 +78,9 @@ class TodoController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $data = TodoModel::where('id', $id)
+      ->update(['todo' => $request->todo]);
+        return response()->json($data);
     }
 
     /**
