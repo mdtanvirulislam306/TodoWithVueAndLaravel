@@ -5367,6 +5367,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
@@ -5392,8 +5393,7 @@ __webpack_require__.r(__webpack_exports__);
     addTodo: function addTodo() {
       var _this2 = this;
       var item = {
-        todo: this.todo,
-        status: 0
+        todo: this.todo
       };
       Vue.axios.post(this.api, item).then(function (response) {
         if (response) {
@@ -5408,14 +5408,16 @@ __webpack_require__.r(__webpack_exports__);
       this.editTodoId = this.todos[index].id;
       this.editTodoIndex = index;
     },
-    updateTodo: function updateTodo(index) {
+    updateTodo: function updateTodo() {
       var _this3 = this;
       var item = {
         todo: this.todo
       };
-      Vue.axios.patch(this.api + "/" + this.todos[index].id, item).then(function (response) {
+      Vue.axios.patch(this.api + "/" + this.todos[this.editTodoIndex].id, item).then(function (response) {
         if (response) {
-          console.log(response.data);
+          //this.getTodo()
+          _this3.todos[_this3.editTodoIndex].todo = _this3.todo;
+          //console.log(response.data)
           _this3.todo = "";
           _this3.editTodoId = "";
           _this3.editTodoIndex = "";
@@ -5425,10 +5427,24 @@ __webpack_require__.r(__webpack_exports__);
     deleteTodo: function deleteTodo(id) {
       //console.log(id);
       Vue.axios["delete"](this.api + "/" + id).then(function (response) {
-        console.log(response.data);
+        //console.log(response.data);
       });
       this.todos = this.todos.filter(function (item) {
         return item.id !== id;
+      });
+    },
+    doneTodo: function doneTodo(index) {
+      var _this4 = this;
+      var item = {
+        status: !this.todos[index].status
+      };
+      //console.log(item.status)
+      Vue.axios.patch(this.api + "/" + this.todos[index].id, item).then(function (response) {
+        if (response) {
+          console.log(response.data);
+          //this.todos[index].status=!this.todos[index].status 
+          _this4.getTodo();
+        }
       });
     }
   }
@@ -28720,7 +28736,7 @@ var render = function () {
                 on: {
                   submit: function ($event) {
                     $event.preventDefault()
-                    return _vm.addTodo.apply(null, arguments)
+                    return _vm.addTodo()
                   },
                 },
               },
@@ -28765,9 +28781,10 @@ var render = function () {
                         "button",
                         {
                           staticClass: "btn btn-info",
+                          attrs: { type: "button" },
                           on: {
                             click: function ($event) {
-                              return _vm.updateTodo(_vm.editTodoIndex)
+                              return _vm.updateTodo()
                             },
                           },
                         },
@@ -28784,11 +28801,22 @@ var render = function () {
                 "tbody",
                 _vm._l(_vm.todos, function (item, index) {
                   return _c("tr", { key: index }, [
-                    _c("td", [_vm._v(_vm._s(item.todo))]),
+                    _c("td", [
+                      !item.status
+                        ? _c("p", [_vm._v(_vm._s(item.todo))])
+                        : _c("del", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(item.todo)),
+                          ]),
+                    ]),
                     _vm._v(" "),
                     _c("td", { staticClass: "text-center" }, [
                       _c("i", {
                         staticClass: "fa-solid fa-check mx-2 text-primary",
+                        on: {
+                          click: function ($event) {
+                            return _vm.doneTodo(index)
+                          },
+                        },
                       }),
                       _vm._v(" "),
                       _c("i", {

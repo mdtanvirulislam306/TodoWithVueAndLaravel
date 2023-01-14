@@ -6,7 +6,7 @@
                     <div class="card-header text-center">Todo App</div>
 
                     <div class="card-body">
-                        <form @submit.prevent="addTodo">
+                        <form @submit.prevent="addTodo()">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -16,7 +16,7 @@
                                 <button class="btn btn-info" type="submit" v-if="!editTodoId" >
                                     Add
                                 </button>
-                                <button class="btn btn-info"  v-else  @click="updateTodo(editTodoIndex)">Update</button>
+                                <button class="btn btn-info" type="button" v-else  @click="updateTodo()">Update</button>
                             </div>
                         </form>
                         <table class="table table-bordered mt-2">
@@ -28,10 +28,11 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, index) in todos" :key="index">
-                                    <td>{{ item.todo }}</td>
+                                    <td><p v-if="!item.status">{{ item.todo }}</p><del class="text-danger" v-else>{{ item.todo }}</del></td>
                                     <td class="text-center">
                                         <i
                                             class="fa-solid fa-check mx-2 text-primary"
+                                            @click="doneTodo(index)"
                                         ></i>
                                         <i 
                                         class="fa-solid fa-pen mx-2 text-info" 
@@ -76,7 +77,6 @@ export default {
         addTodo() {
             let item = {
                 todo: this.todo,
-                status: 0,
             };
             Vue.axios.post(this.api, item).then((response) => {
                 if(response){
@@ -93,13 +93,15 @@ export default {
             this.editTodoIndex = index
              
         },
-        updateTodo(index){
+        updateTodo(){
             let item = {
                 todo: this.todo
             };
-            Vue.axios.patch(this.api+"/"+this.todos[index].id, item).then((response) => {
+            Vue.axios.patch(this.api+"/"+this.todos[this.editTodoIndex].id, item).then((response) => {
                 if(response){
-                    console.log(response.data)
+                    //this.getTodo()
+                    this.todos[this.editTodoIndex].todo=this.todo
+                    //console.log(response.data)
                     this.todo = ""
                     this.editTodoId = ""
                     this.editTodoIndex = ""
@@ -111,10 +113,23 @@ export default {
             //console.log(id);
             Vue.axios.delete(this.api + "/" +id)
                 .then((response) => {
-                    console.log(response.data);
+                    //console.log(response.data);
                 });
             this.todos = this.todos.filter((item) => item.id !== id);
         },
-    },
+        doneTodo(index){
+            let item = {
+                status: !this.todos[index].status
+            };
+            //console.log(item.status)
+            Vue.axios.patch(this.api+"/"+this.todos[index].id, item).then((response) => {
+                if(response){
+                    console.log(response.data)
+                    //this.todos[index].status=!this.todos[index].status 
+                    this.getTodo()
+                }
+        })
+    }
+}
 };
 </script>
